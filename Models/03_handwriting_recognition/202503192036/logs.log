@@ -1,0 +1,3 @@
+2025-03-19 20:48:11,099 - ImageReader - WARNING - Image Datasets/IAM_Words/words/a01/a01-117/a01-117-05-02.png could not be read, returning None.
+2025-03-19 20:48:11,099 - DataProvider - WARNING - Data or annotation is None, marking for removal on epoch end.
+2025-03-19 20:48:11,099 - DataProvider - WARNING - Data or annotation is None, skipping.

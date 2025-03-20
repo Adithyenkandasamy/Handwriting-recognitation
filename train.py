@@ -1,10 +1,6 @@
-import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "-1"  # Disable GPU
-
 import tensorflow as tf
-# Remove the GPU memory growth configuration
-# try: [tf.config.experimental.set_memory_growth(gpu, True) for gpu in tf.config.experimental.list_physical_devices("GPU")]
-# except: pass
+try: [tf.config.experimental.set_memory_growth(gpu, True) for gpu in tf.config.experimental.list_physical_devices("GPU")]
+except: pass
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 
@@ -18,16 +14,16 @@ from mltu.tensorflow.losses import CTCloss
 from mltu.tensorflow.callbacks import Model2onnx, TrainLogger
 from mltu.tensorflow.metrics import CWERMetric
 
-from models import train_model
+from model import train_model
 from configs import ModelConfigs
 
+import os
 import tarfile
 from tqdm import tqdm
 from urllib.request import urlopen
 from io import BytesIO
 from zipfile import ZipFile
 
-# ...existing code...
 
 def download_and_unzip(url, extract_to="Datasets", chunk_size=1024*1024):
     http_response = urlopen(url)
