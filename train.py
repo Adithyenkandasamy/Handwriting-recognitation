@@ -116,7 +116,7 @@ model.compile(
 model.summary(line_length=110)
 
 # Define callbacks
-earlystopper = EarlyStopping(monitor="val_CER", patience=20, verbose=1)
+earlystopper = EarlyStopping(monitor="val_CER", patience=20, verbose=1, mode="min")
 checkpoint = ModelCheckpoint(f"{configs.model_path}/model.h5", monitor="val_CER", verbose=1, save_best_only=True, mode="min")
 trainLogger = TrainLogger(configs.model_path)
 tb_callback = TensorBoard(f"{configs.model_path}/logs", update_freq=1)
@@ -129,7 +129,6 @@ model.fit(
     validation_data=val_data_provider,
     epochs=configs.train_epochs,
     callbacks=[earlystopper, checkpoint, trainLogger, reduceLROnPlat, tb_callback, model2onnx],
-    workers=configs.train_workers
 )
 
 # Save training and validation datasets as csv files
