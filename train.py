@@ -1,6 +1,16 @@
 import tensorflow as tf
-try: [tf.config.experimental.set_memory_growth(gpu, True) for gpu in tf.config.experimental.list_physical_devices("GPU")]
-except: pass
+# Initialize CUDA with error handling
+try:
+    gpus = tf.config.experimental.list_physical_devices("GPU")
+    if gpus:
+        for gpu in gpus:
+            tf.config.experimental.set_memory_growth(gpu, True)
+        print("GPU acceleration enabled")
+    else:
+        print("No GPU devices found. Running on CPU")
+except Exception as e:
+    print(f"Error initializing GPU: {e}")
+    print("Falling back to CPU")
 
 from keras.callbacks import EarlyStopping, ModelCheckpoint, ReduceLROnPlateau, TensorBoard
 
@@ -26,15 +36,41 @@ from zipfile import ZipFile
 
 
 def download_and_unzip(url, extract_to="Datasets", chunk_size=1024*1024):
-    http_response = urlopen(url)
+    try:
+        os.makedirs(extract_to, exist_ok=True)
+        print(f"Downloading dataset from {url}")
+        
+        # Updated URL - replace with the direct download link
+        fallback_url = "https://www.dropbox.com/s/0me6brn9eqbk8ey/IAM_Words.zip?dl=1"
+        
+        try:
+            http_response = urlopen(url)
+        except:
+            print(f"Primary URL failed, trying fallback URL")
+            http_response = urlopen(fallback_url)
 
-    data = b""
-    iterations = http_response.length // chunk_size + 1
-    for _ in tqdm(range(iterations)):
-        data += http_response.read(chunk_size)
+        data = b""
+        total_size = int(http_response.headers.get('content-length', 0))
+        iterations = total_size // chunk_size + 1
+        
+        for _ in tqdm(range(iterations), desc="Downloading"):
+            chunk = http_response.read(chunk_size)
+            if not chunk:
+                break
+            data += chunk
 
-    zipfile = ZipFile(BytesIO(data))
-    zipfile.extractall(path=extract_to)
+        print("Download complete. Extracting files...")
+        try:
+            zipfile = ZipFile(BytesIO(data))
+            zipfile.extractall(path=extract_to)
+            print(f"Files extracted to {extract_to}")
+        except Exception as e:
+            print(f"Error extracting files: {e}")
+            raise
+            
+    except Exception as e:
+        print(f"Error downloading or extracting dataset: {e}")
+        raise
 
 dataset_path = os.path.join("Datasets", "IAM_Words")
 if not os.path.exists(dataset_path):
